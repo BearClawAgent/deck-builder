@@ -256,8 +256,8 @@ const EVENT_DB = [
 ];
 
 const CLASSES = {
-    "Ironclad": { hp: 80, relic: "Burning Blood", deck: ["Strike", "Strike", "Strike", "Strike", "Strike", "Defend", "Defend", "Defend", "Defend", "Bash"], icon: "🔴", color: "#e74c3c", img: "assets/ironclad.svg" },
-    "Silent": { hp: 70, relic: "Ring of Snake", deck: ["Strike", "Strike", "Strike", "Strike", "Strike", "Defend", "Defend", "Defend", "Defend", "Defend", "Neutralize", "Survivor"], icon: "🟢", color: "#2ecc71", img: "assets/silent.svg" }
+    "Ironclad": { hp: 80, relic: "Burning Blood", deck: ["Strike", "Strike", "Strike", "Strike", "Strike", "Defend", "Defend", "Defend", "Defend", "Bash"], icon: "🔴", color: "#e74c3c", img: "assets/characters/ironclad.png" },
+    "Silent": { hp: 70, relic: "Ring of Snake", deck: ["Strike", "Strike", "Strike", "Strike", "Strike", "Defend", "Defend", "Defend", "Defend", "Defend", "Neutralize", "Survivor"], icon: "🟢", color: "#2ecc71", img: "assets/characters/silent.png" }
 };
 
 // --- INITIALIZATION ---
