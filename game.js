@@ -249,9 +249,20 @@ window.onload = () => {
 };
 
 function showView(viewName) {
+    // Cleanup previous view's effects
+    if (STATE.view === 'combat' && cleanupParallax) {
+        cleanupParallax();
+        cleanupParallax = null;
+    }
+
     document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
     document.getElementById(`view-${viewName}`).classList.add('active');
     STATE.view = viewName;
+
+    // Setup new view's effects
+    if (viewName === 'combat') {
+        cleanupParallax = initParallax();
+    }
 }
 
 // --- GAME FLOW ---
@@ -1314,7 +1325,49 @@ function usePotion(index) {
     }
 }
 
+
+// --- PARALLAX EFFECT ---
+function initParallax() {
+    const combatView = document.getElementById('view-combat');
+    if (!combatView) return;
+
+    const bgFar = document.getElementById('bg-far');
+    const bgNear = document.getElementById('bg-near');
+
+    const handleMouseMove = (e) => {
+        const { clientX, clientY } = e;
+        const { offsetWidth, offsetHeight } = combatView;
+
+        const xPercent = (clientX / offsetWidth - 0.5) * 2;
+        const yPercent = (clientY / offsetHeight - 0.5) * 2;
+
+        // Adjust intensity
+        const farX = -xPercent * 10; // Moves less
+        const farY = -yPercent * 5;
+        const nearX = -xPercent * 20; // Moves more
+        const nearY = -yPercent * 10;
+
+        requestAnimationFrame(() => {
+            if (bgFar) bgFar.style.transform = `translate(${farX}px, ${farY}px)`;
+            if (bgNear) bgNear.style.transform = `translate(${nearX}px, ${nearY}px)`;
+        });
+    };
+
+    combatView.addEventListener('mousemove', handleMouseMove);
+    
+    // Return a cleanup function
+    return () => {
+        combatView.removeEventListener('mousemove', handleMouseMove);
+        // Reset styles
+        if (bgFar) bgFar.style.transform = 'translate(0, 0)';
+        if (bgNear) bgNear.style.transform = 'translate(0, 0)';
+    };
+}
+
+let cleanupParallax = null;
+
 // --- UI UPDATERS ---
+
 function updateCombatUI() {
     // Potions
     const potionsContainer = document.getElementById('potions-container');
