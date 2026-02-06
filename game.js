@@ -280,6 +280,7 @@ function showView(viewName) {
     // Setup new view's effects
     if (viewName === 'combat') {
         cleanupParallax = initParallax();
+        initializeGrid();
     }
 }
 
@@ -1343,6 +1344,123 @@ function usePotion(index) {
     }
 }
 
+
+// --- GRID SYSTEM ---
+const GRID_SIZE = { width: 10, height: 8 };
+let gridState = [];
+let selectedCell = null;
+let currentMode = 'move'; // 'move', 'attack', 'skill'
+
+function initializeGrid() {
+    gridState = Array(GRID_SIZE.height).fill(null).map(() => Array(GRID_SIZE.width).fill(null));
+    renderGrid();
+    placeEntitiesOnGrid();
+}
+
+function renderGrid() {
+    const gridOverlay = document.getElementById('grid-overlay');
+    if (!gridOverlay) return;
+    
+    gridOverlay.innerHTML = '';
+    
+    for (let y = 0; y < GRID_SIZE.height; y++) {
+        for (let x = 0; x < GRID_SIZE.width; x++) {
+            const cell = document.createElement('div');
+            cell.className = 'grid-cell';
+            cell.dataset.x = x;
+            cell.dataset.y = y;
+            
+            // Add cell state classes
+            if (gridState[y][x]) {
+                cell.classList.add('occupied');
+            }
+            
+            gridOverlay.appendChild(cell);
+        }
+    }
+}
+
+function placeEntitiesOnGrid() {
+    // Place player at starting position
+    const playerStartX = 1;
+    const playerStartY = 6;
+    gridState[playerStartY][playerStartX] = 'player';
+    
+    // Place enemy at starting position  
+    const enemyStartX = 8;
+    const enemyStartY = 2;
+    gridState[enemyStartY][enemyStartX] = 'enemy';
+    
+    // Update entity positions
+    updateEntityPosition('player', playerStartX, playerStartY);
+    updateEntityPosition('enemy', enemyStartX, enemyStartY);
+}
+
+function updateEntityPosition(entityType, x, y) {
+    const entity = document.getElementById(`${entityType}-entity`);
+    if (!entity) return;
+    
+    const cellSize = 80; // pixels per grid cell
+    entity.style.left = `${x * cellSize + 40}px`; // 40px offset for combat area
+    entity.style.top = `${y * cellSize + 100}px`; // 100px offset for top bar
+}
+
+function getCellAt(x, y) {
+    if (x < 0 || x >= GRID_SIZE.width || y < 0 || y >= GRID_SIZE.height) {
+        return null;
+    }
+    return gridState[y][x];
+}
+
+function setCellAt(x, y, value) {
+    if (x >= 0 && x < GRID_SIZE.width && y >= 0 && y < GRID_SIZE.height) {
+        gridState[y][x] = value;
+        updateCellVisual(x, y);
+    }
+}
+
+function updateCellVisual(x, y) {
+    const gridOverlay = document.getElementById('grid-overlay');
+    if (!gridOverlay) return;
+    
+    const cellIndex = y * GRID_SIZE.width + x;
+    const cell = gridOverlay.children[cellIndex];
+    if (!cell) return;
+    
+    // Clear all state classes
+    cell.classList.remove('occupied', 'move-range', 'attack-range', 'selected');
+    
+    // Add appropriate class based on grid state
+    const value = gridState[y][x];
+    if (value === 'player' || value === 'enemy') {
+        cell.classList.add('occupied');
+    }
+}
+
+function highlightMoveRange(entityX, entityY, range) {
+    clearHighlights();
+    selectedCell = { x: entityX, y: entityY };
+    
+    for (let y = Math.max(0, entityY - range); y <= Math.min(GRID_SIZE.height - 1, entityY + range); y++) {
+        for (let x = Math.max(0, entityX - range); x <= Math.min(GRID_SIZE.width - 1, entityX + range); x++) {
+            if (getCellAt(x, y) === null) {
+                const cellIndex = y * GRID_SIZE.width + x;
+                const cell = document.getElementById('grid-overlay').children[cellIndex];
+                if (cell) cell.classList.add('move-range');
+            }
+        }
+    }
+}
+
+function clearHighlights() {
+    const gridOverlay = document.getElementById('grid-overlay');
+    if (!gridOverlay) return;
+    
+    Array.from(gridOverlay.children).forEach(cell => {
+        cell.classList.remove('move-range', 'attack-range', 'selected');
+    });
+    selectedCell = null;
+}
 
 // --- PARALLAX EFFECT ---
 function initParallax() {

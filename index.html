@@ -52,36 +52,41 @@
                     <div id="bg-ground" class="bg-layer"></div>
                 </div>
 
-                <!-- Player Entity -->
-                <div id="player-entity" class="entity">
-                    <div class="hp-bar-container">
-                        <div id="player-hp-fill" class="hp-fill"></div>
-                        <div id="player-block-fill" class="block-fill" style="width: 0%"></div>
-                    </div>
-                    <div id="player-hp-text" style="font-weight: bold; margin-top: 5px;">80/80</div>
-                    
-                    <div id="player-block-container" class="block-icon">
-                        🛡️ <span id="player-block">0</span>
+                <!-- Grid Battlefield -->
+                <div id="grid-battlefield">
+                    <div id="grid-overlay"></div>
+                    <!-- Player Entity -->
+                    <div id="player-entity" class="entity grid-entity">
+                        <div class="hp-bar-container">
+                            <div id="player-hp-fill" class="hp-fill"></div>
+                            <div id="player-block-fill" class="block-fill" style="width: 0%"></div>
+                        </div>
+                        <div id="player-hp-text" style="font-weight: bold; margin-top: 5px;">80/80</div>
+                        
+                        <div id="player-block-container" class="block-icon">
+                            🛡️ <span id="player-block">0</span>
+                        </div>
+
+                        <div class="entity-sprite">🧙‍♂️</div>
                     </div>
 
-                    <div class="entity-sprite">🧙‍♂️</div>
+                    <!-- Enemy Entity -->
+                    <div id="enemy-entity" class="entity grid-entity">
+                        <div class="intent-display">
+                            <div id="enemy-intent" class="intent-icon">❓</div>
+                        </div>
+
+                        <div id="enemy-sprite" class="entity-sprite">👹</div>
+                    </div>
                 </div>
 
-                <!-- Enemy Entity -->
-                <div id="enemy-entity" class="entity">
-                    <div class="intent-display">
-                        <div id="enemy-intent" class="intent-icon">❓</div>
-                    </div>
-
-                    <div id="enemy-sprite" class="entity-sprite">👹</div>
-
-                    <div class="hp-bar-container">
-                        <div id="enemy-hp-fill" class="hp-fill"></div>
-                    </div>
-                    <div id="enemy-hp-text" style="font-weight: bold; margin-top: 5px;">50/50</div>
-                    
-                    <div id="enemy-block-container" class="block-icon" style="top: -60px;">
-                        🛡️ <span id="enemy-block">0</span>
+                <div class="hp-bar-container">
+                    <div id="enemy-hp-fill" class="hp-fill"></div>
+                </div>
+                <div id="enemy-hp-text" style="font-weight: bold; margin-top: 5px;">50/50</div>
+                
+                <div id="enemy-block-container" class="block-icon" style="top: -60px;">
+                    🛡️ <span id="enemy-block">0</span>
                     </div>
                 </div>
             </div>

@@ -45,6 +45,13 @@ The goal is to reach feature parity with the core mechanics of Slay the Spire.
 - [x] **Parallax Effect:** Implement parallax scrolling/mouse-movement for the background layers in a fight scene. The characters are standing on the ground, and 2 layers of background behind them, close and far. The close layer should move more than the far layer when the mouse moves.
 - [x] **Gen Art: Cards:** Use `nano-banana-pro` to generate unique art for all implemented cards. Style: High contrast, thick lines, dynamic action shots.
 
+### Phase 3: Rework features
+- [ ] **Tactics type movement:** Change the visuals to be a top-down grid-based battle system like Tactics Ogre or Fire Emblem. The player character moves on the grid to position themselves before fighting.
+- [ ] **Background visuals:** Since the players are on a tactics field, generate images for the battlefield, isometric view.
+- [ ] **Implement tiling system:** The background images for the field should be able to be tiled together to create very large battlefields, with seamless edges where the tiles connect. 
+- [ ] **Player movement:** Implement player movement on the grid, with collision detection and pathfinding. 
+
+
 ## How to Play
 
 1. Open `index.html` in your browser.
