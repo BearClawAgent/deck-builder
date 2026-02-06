@@ -44,17 +44,35 @@ function getKeywordsFromText(text) {
     return Object.keys(KEYWORD_DB).filter(k => text.includes(k));
 }
 
-function showTooltip(e, keywords) {
+function showTooltip(e, keywords, cardData = null) {
     const container = document.getElementById('tooltip-container');
-    if (!keywords || keywords.length === 0) return;
+    if ((!keywords && !cardData) || (keywords && keywords.length === 0)) return;
     
     container.innerHTML = '';
-    keywords.forEach(k => {
-        const div = document.createElement('div');
-        div.className = 'tooltip-keyword';
-        div.innerHTML = `<span class="tooltip-title">${k}</span> ${KEYWORD_DB[k]}`;
-        container.appendChild(div);
-    });
+    
+    // Show card details if provided
+    if (cardData) {
+        const cardDiv = document.createElement('div');
+        cardDiv.className = 'tooltip-card';
+        cardDiv.innerHTML = `
+            <div class="tooltip-card-header">
+                <span class="tooltip-card-name">${cardData.name}</span>
+                <span class="tooltip-card-cost-type">${cardData.cost} • ${cardData.type}</span>
+            </div>
+            <div class="tooltip-card-desc">${cardData.desc}</div>
+        `;
+        container.appendChild(cardDiv);
+    }
+    
+    // Show keywords if provided
+    if (keywords && keywords.length > 0) {
+        keywords.forEach(k => {
+            const div = document.createElement('div');
+            div.className = 'tooltip-keyword';
+            div.innerHTML = `<span class="tooltip-title">${k}</span> ${KEYWORD_DB[k]}`;
+            container.appendChild(div);
+        });
+    }
     
     container.style.display = 'block';
     moveTooltip(e);
@@ -1057,7 +1075,7 @@ function winCombat() {
         
         const keywords = getKeywordsFromText(cardData.desc);
         if (keywords.length > 0) {
-            el.onmouseenter = (e) => showTooltip(e, keywords);
+            el.onmouseenter = (e) => showTooltip(e, keywords, cardData);
             el.onmouseleave = () => hideTooltip();
             el.onmousemove = (e) => moveTooltip(e);
         }
@@ -1151,7 +1169,7 @@ function renderShop() {
         
         const keywords = getKeywordsFromText(cardData.desc);
         if (keywords.length > 0) {
-            wrapper.onmouseenter = (e) => showTooltip(e, keywords);
+            wrapper.onmouseenter = (e) => showTooltip(e, keywords, cardData);
             wrapper.onmouseleave = () => hideTooltip();
             wrapper.onmousemove = (e) => moveTooltip(e);
         }
@@ -1450,7 +1468,7 @@ function updateCombatUI() {
 
         const keywords = getKeywordsFromText(cData.desc);
         if (keywords.length > 0) {
-            el.onmouseenter = (e) => showTooltip(e, keywords);
+            el.onmouseenter = (e) => showTooltip(e, keywords, cData);
             el.onmouseleave = () => hideTooltip();
             el.onmousemove = (e) => moveTooltip(e);
         }
