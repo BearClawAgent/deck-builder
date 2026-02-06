@@ -1355,6 +1355,7 @@ function initializeGrid() {
     gridState = Array(GRID_SIZE.height).fill(null).map(() => Array(GRID_SIZE.width).fill(null));
     renderGrid();
     placeEntitiesOnGrid();
+    setupPlayerMovement();
 }
 
 function renderGrid() {
@@ -1460,6 +1461,78 @@ function clearHighlights() {
         cell.classList.remove('move-range', 'attack-range', 'selected');
     });
     selectedCell = null;
+}
+
+// --- PLAYER MOVEMENT ---
+function setupPlayerMovement() {
+    const gridOverlay = document.getElementById('grid-overlay');
+    if (!gridOverlay) return;
+    
+    gridOverlay.addEventListener('click', handleGridClick);
+    gridOverlay.addEventListener('mousemove', handleGridHover);
+}
+
+function handleGridClick(e) {
+    if (!e.target.classList.contains('grid-cell')) return;
+    
+    const x = parseInt(e.target.dataset.x);
+    const y = parseInt(e.target.dataset.y);
+    
+    if (currentMode === 'move') {
+        movePlayerTo(x, y);
+    }
+}
+
+function handleGridHover(e) {
+    if (!e.target.classList.contains('grid-cell')) return;
+    
+    const x = parseInt(e.target.dataset.x);
+    const y = parseInt(e.target.dataset.y);
+    
+    if (currentMode === 'move') {
+        const distance = getDistance(getPlayerPosition(), { x, y });
+        if (distance <= 3) { // Movement range
+            e.target.style.cursor = 'pointer';
+        } else {
+            e.target.style.cursor = 'not-allowed';
+        }
+    }
+}
+
+function getPlayerPosition() {
+    for (let y = 0; y < GRID_SIZE.height; y++) {
+        for (let x = 0; x < GRID_SIZE.width; x++) {
+            if (gridState[y][x] === 'player') {
+                return { x, y };
+            }
+        }
+    }
+    return null;
+}
+
+function getDistance(pos1, pos2) {
+    return Math.abs(pos1.x - pos2.x) + Math.abs(pos1.y - pos2.y);
+}
+
+function movePlayerTo(newX, newY) {
+    // Check if target cell is valid and within range
+    if (getCellAt(newX, newY) !== null) return;
+    
+    const currentPos = getPlayerPosition();
+    if (!currentPos) return;
+    
+    const distance = getDistance(currentPos, { x: newX, y: newY });
+    if (distance > 3) return; // Movement range limit
+    
+    // Clear current position
+    setCellAt(currentPos.x, currentPos.y, null);
+    
+    // Set new position
+    setCellAt(newX, newY, 'player');
+    updateEntityPosition('player', newX, newY);
+    
+    // Update move range display
+    highlightMoveRange(newX, newY, 3);
 }
 
 // --- PARALLAX EFFECT ---
