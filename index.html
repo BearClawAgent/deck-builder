@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claw Spire - Dev Sprint v1</title>
+    <style>
+        :root { --ironclad-red: #8b0000; --energy-blue: #00ffff; --block-blue: #4682b4; }
+        body { background: #0a0a0a; color: #eee; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; flex-direction: column; align-items: center; margin: 0; padding: 20px; }
+        
+        #game-board { width: 800px; height: 550px; background: #1a1a1a; border: 4px solid #333; position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; }
+        #view-combat { display: flex; flex-direction: column; width: 100%; height: 100%; }
+        #view-map { display: none; flex-direction: column; width: 100%; height: 100%; padding: 20px; overflow-y: auto; align-items: center; }
+
+        .entities-container { position: relative; width: 100%; height: 400px; }
+        .entity { position: absolute; bottom: 100px; width: 120px; text-align: center; transition: transform 0.2s, left 0.3s, right 0.3s; z-index: 5; }
+        #player { left: 80px; }
+        #enemy { right: 80px; }
+        .hp-bar { width: 100px; height: 12px; background: #333; border: 1px solid #000; position: relative; margin: 5px auto; border-radius: 6px; overflow: hidden; }
+        .hp-fill { height: 100%; background: #ff4444; transition: width 0.3s; }
+        .block-fill { position: absolute; top: 0; left: 0; height: 100%; background: var(--block-blue); opacity: 0.8; transition: width 0.3s; }
+        
+        .intent { position: absolute; top: -140px; left: 50%; transform: translateX(-50%); width: 150px; font-size: 1.1em; font-weight: bold; color: #ffaa00; text-align: center; display: flex; flex-direction: column; align-items: center; pointer-events: none; z-index: 10; }
+        .intent-icon { font-size: 2.8em; text-shadow: 0 0 12px #000; filter: drop-shadow(0 0 4px #fff); position: relative; }
+        .intent-multi { position: absolute; bottom: -5px; right: -15px; font-size: 0.5em; background: rgba(0,0,0,0.85); color: #fff; padding: 2px 5px; border-radius: 4px; border: 1px solid #888; white-space: nowrap; }
+        .intent-value { margin-top: 2px; background: rgba(0,0,0,0.75); padding: 2px 10px; border-radius: 12px; border: 1px solid #666; min-width: 40px; box-shadow: 0 0 5px rgba(0,0,0,0.5); }
+
+        #hand { position: relative; width: 100%; height: 160px; display: flex; justify-content: center; gap: 8px; padding-bottom: 10px; z-index: 100; }
+        .card { width: 100px; height: 140px; background: #2c3e50; border: 2px solid #555; border-radius: 8px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 5px; font-size: 0.75em; transition: transform 0.2s, border-color 0.2s; position: relative; flex-shrink: 0; text-align: center; box-shadow: 0 4px 8px rgba(0,0,0,0.5); }
+        .card:hover { transform: translateY(-30px); border-color: var(--energy-blue); z-index: 10; }
+        .card-cost { position: absolute; top: -8px; left: -8px; background: var(--energy-blue); color: #000; border: 2px solid #000; border-radius: 50%; width: 24px; height: 24px; text-align: center; font-weight: bold; line-height: 24px; font-size: 1.1em; }
+        .card-type { font-size: 0.8em; font-style: italic; color: #aaa; margin-bottom: 5px; }
+        
+        #energy-display { position: absolute; bottom: 180px; left: 20px; font-size: 2.2em; color: var(--energy-blue); text-shadow: 0 0 10px #000; z-index: 101; font-weight: bold; }
+        #combat-log { width: 800px; height: 120px; background: #000; border: 2px solid #333; margin-top: 10px; overflow-y: auto; padding: 10px; font-size: 0.9em; color: #bbb; line-height: 1.4; }
+        .btn-end { position: absolute; bottom: 190px; right: 20px; padding: 12px 24px; background: #444; border: 2px solid #666; color: white; cursor: pointer; z-index: 101; font-weight: bold; border-radius: 4px; }
+        .btn-end:hover { background: #666; border-color: #888; }
+        
+        .status-row { min-height: 25px; margin-top: 5px; display: flex; justify-content: center; flex-wrap: wrap; gap: 4px; }
+        .status-badge { display: flex; align-items: center; justify-content: center; padding: 2px 6px; font-size: 11px; border-radius: 10px; border: 1px solid; background: rgba(0,0,0,0.5); font-weight: bold; }
+        .vulnerable { border-color: #ff4500; color: #ff4500; }
+        .weak { border-color: #ffd700; color: #ffd700; }
+        .frail { border-color: #ffa500; color: #ffa500; }
+        .strength { border-color: #ff0000; color: #ff0000; }
+        .dexterity { border-color: #00ff00; color: #00ff00; }
+        .thorns { border-color: #32cd32; color: #32cd32; }
+        .keep_block { border-color: #ffd700; color: #ffd700; }
+        .artifact { border-color: #c0c0c0; color: #c0c0c0; }
+        .ritual { border-color: #ff00ff; color: #ff00ff; }
+        .anger { border-color: #ff4500; color: #ff4500; }
+        .metallicize { border-color: #c0c0c0; color: #c0c0c0; }
+        .plated-armor { border-color: #daa520; color: #daa520; }
+        .curl-up { border-color: #deb887; color: #deb887; }
+        
+        .hit-flash { animation: flash 0.25s ease-out; }
+        @keyframes flash { 0% { opacity: 1; filter: brightness(1); } 50% { opacity: 0.7; transform: scale(1.1); filter: brightness(3); } 100% { opacity: 1; filter: brightness(1); } }
+        
+        .relic-row { margin-top: 8px; display: flex; justify-content: center; gap: 5px; }
+        .relic { font-size: 1.5em; cursor: help; filter: drop-shadow(0 0 2px #fff); }
+
+        .map-node { width: 50px; height: 50px; background: #333; border: 2px solid #555; border-radius: 50%; margin: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.5em; }
+        .map-node.active { border-color: #ffaa00; box-shadow: 0 0 10px #ffaa00; }
+        .map-node:hover { background: #444; }
+        .map-connector { width: 2px; height: 20px; background: #444; }
+    </style>
+</head>
+<body>
+    <h1 style="margin: 0 0 10px 0; color: var(--ironclad-red); text-shadow: 2px 2px #000;">CLAW SPIRE <small style="color: #666; font-size: 0.4em;">DEV SPRINT v1.2</small></h1>
+    
+    <div id="game-board">
+        <!-- New HUD for Debugging and Map -->
+        <div id="debug-info" style="position: absolute; top: 0; width: 100%; background: rgba(0,0,0,0.5); font-size: 0.8em; z-index: 1000; display: flex; justify-content: space-around;">
+            <span>Current Floor: <span id="floor-val">0</span></span>
+            <span>Next Intent: <span id="next-intent-val">None</span></span>
+        </div>
+        <div id="view-title" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; width: 100%; text-align: center;">
+            <h1 style="font-size: 4em; color: var(--ironclad-red); margin: 0; text-shadow: 3px 3px #000;">CLAW SPIRE</h1>
+            <p style="color: #888;">A Deck-Building Adventure</p>
+            <button onclick="startGame()" style="margin-top: 30px; padding: 15px 40px; font-size: 1.5em; cursor: pointer; background: var(--ironclad-red); color: white; border: 2px solid #000; border-radius: 8px;">Start Game</button>
+        </div>
+
+        <!-- Class Selection Menu -->
+        <div id="view-menu" style="display: none; flex-direction: column; align-items: center; justify-content: center; height: 100%; width: 100%;">
+            <h2 style="color: var(--ironclad-red);">SELECT YOUR CHARACTER</h2>
+            <div style="display: flex; gap: 20px;">
+                <button onclick="selectClass('Warrior')" style="padding: 10px; cursor: pointer; width: 200px; text-align: center;">
+                    <h3>Warrior</h3>
+                    <p>HP: 80</p>
+                    <p>Relic: Burning Blood</p>
+                    <small>A powerful warrior who heals after every battle.</small>
+                </button>
+                <button onclick="selectClass('Rogue')" style="padding: 10px; cursor: pointer; width: 200px; text-align: center;">
+                    <h3>Rogue</h3>
+                    <p>HP: 72</p>
+                    <p>Relic: Vajra</p>
+                    <small>A cunning rogue who starts combat with extra Strength.</small>
+                </button>
+            </div>
+        </div>
+
+        <div id="view-combat" style="display: none;">
+            <!-- Combat Intent Icons Guide -->
+            <div style="position: absolute; top: 10px; left: 50%; transform: translateX(-50%); font-size: 0.7em; color: #555; pointer-events: none;">
+                ⚔️ Atk | 🛡️ Blk | 💪 Buf | 🧪 Deb | 🧪💔 Vuln
+            </div>
+            <div id="deck-info" style="position: absolute; top: 10px; right: 10px; font-size: 0.9em; color: #888; text-align: right; z-index: 102;">
+                Draw: <span id="draw-count">0</span> | Discard: <span id="discard-count">0</span><br>
+                Gold: <span id="gold-display">99</span>
+            </div>
+            <div id="relic-display" style="position: absolute; top: 10px; left: 10px; display: flex; gap: 5px; z-index: 102;"></div>
+            <div class="entities-container">
+                <!-- Player -->
+                <div id="player" class="entity">
+                    <div id="player-block-ui" style="position: absolute; top: -35px; width: 100%; display: flex; justify-content: center; align-items: center; visibility: hidden;">
+                        <span style="color: var(--block-blue); font-size: 1.5em; margin-right: 4px;">🛡️</span>
+                        <span id="p-block-val" style="color: var(--block-blue); font-weight: bold; font-size: 1.2em;">0</span>
+                    </div>
+                    <div class="hp-bar">
+                        <div id="p-hp-fill" class="hp-fill"></div>
+                        <div id="p-block-fill" class="block-fill" style="width: 0%;"></div>
+                    </div>
+                    <div id="p-hp-text" style="font-weight: bold;">50/80</div>
+                    <div id="p-status-row" class="status-row"></div>
+                    <div style="font-size: 4em; filter: drop-shadow(0 0 10px rgba(255,0,0,0.2));">🛡️</div>
+                    <div id="p-relic-row" class="relic-row"></div>
+                </div>
+
+                <!-- Enemy -->
+                <div id="enemy" class="entity">
+                    <div id="enemy-intent" class="intent">
+                        <div id="intent-icon-container" style="position: relative;">
+                            <div id="intent-icon" class="intent-icon">⚔️</div>
+                            <div id="intent-multi" class="intent-multi" style="display: none;">x3</div>
+                        </div>
+                        <div id="intent-value" class="intent-value">6</div>
+                    </div>
+                    <div id="enemy-block-ui" style="position: absolute; top: -35px; width: 100%; display: flex; justify-content: center; align-items: center; visibility: hidden;">
+                        <span style="color: var(--block-blue); font-size: 1.5em; margin-right: 4px;">🛡️</span>
+                        <span id="e-block-val" style="color: var(--block-blue); font-weight: bold; font-size: 1.2em;">0</span>
+                    </div>
+                    <div class="hp-bar">
+                        <div id="e-hp-fill" class="hp-fill"></div>
+                        <div id="e-block-fill" class="block-fill" style="width: 0%;"></div>
+                    </div>
+                    <div id="e-hp-text" style="font-weight: bold;">50/50</div>
+                    <div id="e-status-row" class="status-row"></div>
+                    <div id="enemy-sprite" style="font-size: 4em; filter: drop-shadow(0 0 10px rgba(0,0,0,0.5));">👹</div>
+                </div>
+            </div>
+
+            <div id="energy-display">3 / 3</div>
+            <button class="btn-end" onclick="endTurn()">End Turn</button>
+            <div id="hand"></div>
+        </div>
+
+        <div id="view-map">
+            <h2>Floor <span id="floor-num">1</span></h2>
+            <div id="map-nodes-container" style="display: flex; flex-direction: column-reverse; align-items: center;"></div>
+        </div>
+    </div>
+    
+    <div id="combat-log"></div>
+
+    <script>
+        // Start on Title Screen
+        window.onload = () => {
+            document.getElementById('view-title').style.display = 'flex';
+            document.getElementById('view-menu').style.display = 'none';
+            document.getElementById('view-combat').style.display = 'none';
+            document.getElementById('view-map').style.display = 'none';
+        };
+
+        function startGame() {
+            document.getElementById('view-title').style.display = 'none';
+            document.getElementById('view-menu').style.display = 'flex';
+        }
+
+        // --- PREVENT BROWSER ERRORS FOR MISSING FUNCTIONS ---
+        window.onerror = function(message, source, lineno, colno, error) {
+            console.error(message, "at", lineno, ":", colno);
+            return true;
+        };
+
+        // --- GAME DATA ---
+        const ENEMY_INTENTS = {
+            "Jaw Worm": [
+                { type: 'attack', value: 11, chance: 0.25, name: 'Chomp' },
+                { type: 'attack_buff', value: 7, block: 5, strength: 3, chance: 0.30, name: 'Bellow' },
+                { type: 'attack_block', value: 7, block: 5, chance: 0.45, name: 'Thrash' }
+            ],
+            "Slaver": [
+                { type: 'attack', value: 7, chance: 0.75, name: 'Stab' },
+                { type: 'debuff', vulnerable: 1, chance: 0.25, name: 'Scrape' }
+            ],
+            "Small Slime": [
+                { type: 'attack', value: 3, chance: 0.5, name: 'Tackle' },
+                { type: 'debuff', slimed: 1, chance: 0.5, name: 'Lick' }
+            ],
+            "Cultist": [
+                { type: 'buff', ritual: 3, chance: 1.0, once: true, name: 'Incantation' },
+                { type: 'attack', value: 6, chance: 1.0, name: 'Dark Strike' }
+            ],
+            "Louse": [
+                { type: 'attack', value: 6, chance: 0.75, name: 'Bite' },
+                { type: 'debuff', weak: 2, chance: 0.25, name: 'Spit Web' },
+                { type: 'buff', curl_up: 7, once: true, chance: 0, name: 'Curl Up' } // Passive-ish
+            ],
+            "Guardian": [
+                { type: 'attack', value: 8, hits: 4, chance: 0.4, name: 'Whirlwind' },
+                { type: 'attack_block', value: 15, block: 10, chance: 0.3, name: 'On Guard' },
+                { type: 'debuff', vulnerable: 2, weak: 2, chance: 0.3, name: 'Shockwave' }
+            ],
+            "Sentries": [
+                { type: 'attack', value: 9, chance: 0.5, name: 'Beam' },
+                { type: 'debuff', dazed: 2, chance: 0.5, name: 'Bolt' }
+            ]
+        };
+
+        const CARD_DATA = {
+            "Strike": { cost: 1, damage: 6, type: 'Attack', desc: "Deal 6 damage." },
+            "Defend": { cost: 1, block: 5, type: 'Skill', desc: "Gain 5 Block." },
+            "Bash": { cost: 2, damage: 8, vulnerable: 2, type: 'Attack', desc: "Deal 8 damage. Apply 2 Vulnerable." },
+            "Uppercut": { cost: 2, damage: 13, weak: 1, vulnerable: 1, type: 'Attack', desc: "Deal 13 damage. Apply 1 Weak and 1 Vulnerable." },
+            "Clothesline": { cost: 2, damage: 12, weak: 2, type: 'Attack', desc: "Deal 12 damage. Apply 2 Weak." },
+            "Twin Strike": { cost: 1, damage: 5, hits: 2, type: 'Attack', desc: "Deal 5 damage twice." },
+            "Vulnerable Card": { cost: 1, vulnerable: 2, type: 'Skill', desc: "Apply 2 Vulnerable." },
+            "Weak Card": { cost: 1, weak: 2, type: 'Skill', desc: "Apply 2 Weak." },
+            "Pummel": { cost: 1, damage: 2, hits: 4, exhaust: true, type: 'Attack', desc: "Deal 2 damage 4 times. Exhaust." },
+            "Sword Boomerang": { cost: 1, damage: 3, hits: 3, type: 'Attack', desc: "Deal 3 damage 3 times." },
+            "Flame Barrier": { cost: 2, block: 12, thorns: 4, type: 'Skill', desc: "Gain 12 Block. Whenever you are attacked this turn, deal 4 damage back." },
+            "Feel No Pain": { cost: 1, block_on_exhaust: 3, type: 'Power', desc: "Whenever a card is Exhausted, gain 3 Block." },
+            "Pommel Strike": { cost: 1, damage: 9, draw: 1, type: 'Attack', desc: "Deal 9 damage. Draw 1 card." },
+            "Thunderclap": { cost: 1, damage: 4, vulnerable: 1, type: 'Attack', desc: "Deal 4 damage. Apply 1 Vulnerable to ALL enemies." },
+            "Anger": { cost: 0, damage: 6, add_to_discard: "Anger", type: 'Attack', desc: "Deal 6 damage. Add an Anger to discard." },
+            "Iron Wave": { cost: 1, damage: 5, block: 5, type: 'Attack', desc: "Deal 5 damage. Gain 5 Block." },
+            "Shrug It Off": { cost: 1, block: 8, draw: 1, type: 'Skill', desc: "Gain 8 Block. Draw 1 card." },
+            "Body Slam": { cost: 1, damage_from_block: true, type: 'Attack', desc: "Deal damage equal to your Block." },
+            "Heavy Blade": { cost: 2, damage: 14, strength_mult: 3, type: 'Attack', desc: "Deal 14 damage. Strength affects this card 3 times." },
+            "Inflame": { cost: 1, strength: 2, type: 'Power', desc: "Gain 2 Strength." },
+            "Spot Weakness": { cost: 1, strength_if_attacking: 3, type: 'Skill', desc: "If enemy intends to Attack, gain 3 Strength." },
+            "Metallicize": { cost: 1, metallicize: 3, type: 'Power', desc: "At the end of your turn, gain 3 Block." },
+            "Barricade": { cost: 3, keep_block: true, type: 'Power', desc: "Block no longer expires." },
+            "Demon Form": { cost: 3, strength_per_turn: 2, type: 'Power', desc: "Gain 2 Strength at start of turn." },
+            "True Grit": { cost: 1, block: 7, exhaust_random: true, type: 'Skill', desc: "Gain 7 Block. Exhaust a random card in hand." },
+            "Shockwave": { cost: 2, weak: 3, vulnerable: 3, exhaust: true, type: 'Skill', desc: "Apply 3 Weak and 3 Vulnerable. Exhaust." },
+            "Headbutt": { cost: 1, damage: 9, type: 'Attack', desc: "Deal 9 damage. Put a card from discard on top of draw pile (TBD)." },
+            "Cleave": { cost: 1, damage: 8, type: 'Attack', desc: "Deal 8 damage to ALL enemies." },
+            "Dazed": { cost: -1, unplayable: true, exhaust_eot: true, type: 'Status', desc: "Unplayable. Ethereal." },
+            "Wound": { cost: -1, unplayable: true, type: 'Status', desc: "Unplayable." },
+            "Slimed": { cost: 1, exhaust: true, type: 'Status', desc: "Exhaust." },
+            "Burn": { cost: -1, unplayable: true, damage_eot: 2, type: 'Status', desc: "Unplayable. End of Turn: Take 2 damage." },
+            "Whirlwind": { cost: -1, x_cost: true, damage: 8, type: 'Attack', desc: "Deal 8 damage to ALL enemies X times." },
+            "Blind": { cost: 0, weak: 2, type: 'Skill', desc: "Apply 2 Weak." },
+            "Trip": { cost: 0, vulnerable: 2, type: 'Skill', desc: "Apply 2 Vulnerable." },
+            "Reckless Charge": { cost: 0, damage: 7, add_to_draw: "Dazed", type: 'Attack', desc: "Deal 7 damage. Add a Dazed to your draw pile." },
+            "Blood for Blood": { cost: 4, damage: 18, cost_reduction_on_damage: 1, type: 'Attack', desc: "Costs 1 less for each time you lose HP this combat." },
+            "Disarm": { cost: 1, enemy_strength: -2, exhaust: true, type: 'Skill', desc: "Enemy loses 2 Strength. Exhaust." },
+            "Hemokinesis": { cost: 1, damage: 15, self_damage: 2, type: 'Attack', desc: "Deal 15 damage. Lose 2 HP." },
+            "Battle Trance": { cost: 0, draw: 3, no_more_draw_this_turn: true, type: 'Skill', desc: "Draw 3 cards. You cannot draw additional cards this turn." },
+            "Seeing Red": { cost: 0, energy: 2, exhaust: true, type: 'Skill', desc: "Gain 2 Energy. Exhaust." },
+            "Flex": { cost: 0, strength: 2, strength_loss_eot: 2, type: 'Skill', desc: "Gain 2 Strength. At the end of your turn, lose 2 Strength." },
+            "Shiv": { cost: 0, damage: 4, exhaust: true, type: 'Attack', desc: "Deal 4 damage. Exhaust." }
+        };
+
+        const CLASS_DATA = {
+            "Warrior": {
+                name: "Warrior",
+                maxHP: 80,
+                relic: "Burning Blood",
+                deck: ["Strike", "Strike", "Strike", "Strike", "Strike", "Defend", "Defend", "Defend", "Defend", "Bash"],
+                desc: "A powerful warrior who heals after every battle."
+            },
+            "Rogue": {
+                name: "Rogue",
+                maxHP: 72,
+                relic: "Vajra", // Placeholder, should be a rogue-specific relic later
+                deck: ["Strike", "Strike", "Strike", "Defend", "Defend", "Defend", "Twin Strike", "Weak Card", "Shiv", "Shiv"],
+                desc: "A cunning rogue who starts combat with extra Strength."
+            }
+        };
+
+        const RELIC_DATA = {
+            "Burning Blood": { icon: "🩸", desc: "At the end of combat, heal 6 HP." },
+            "Vajra": { icon: "💎", desc: "Start each combat with 1 Strength." },
+            "Smooth Stone": { icon: "🗿", desc: "Start each combat with 1 Dexterity." },
+            "Paper Phrog": { icon: "🐸", desc: "Vulnerable deals 75% more damage instead of 50%." },
+            "Odd Mushroom": { icon: "🍄", desc: "Vulnerable deals 25% more damage instead of 50% (on you)." },
+            "Ginger": { icon: "🫚", desc: "You can no longer become Weak." },
+            "Champion Belt": { icon: "🏆", desc: "Whenever you apply Vulnerable, also apply 1 Weak." },
+            "Lantern": { icon: "🏮", desc: "Gain 1 Energy at the start of each combat." },
+            "Akabeko": { icon: "👹", desc: "Your first attack each combat deals 8 additional damage." },
+            "Orichalcum": { icon: "🛡️", desc: "If you end your turn with 0 Block, gain 6 Block." }
+        };
+
+        const ENEMY_POOL = [
+            { name: "Jaw Worm", hp: 40, sprite: "👹" },
+            { name: "Cultist", hp: 48, sprite: "🐦" },
+            { name: "Louse", hp: 12, sprite: "🐜", curl_up: 7 },
+            { name: "Slaver", hp: 46, sprite: "⛓️" },
+            { name: "Small Slime", hp: 10, sprite: "💧" },
+            { name: "Fire Elemental", hp: 35, sprite: "🔥" },
+            { name: "Nob", hp: 82, sprite: "👹" },
+            { name: "Guardian", hp: 240, sprite: "🛡️" }
+        ];
+
+        // --- GAME STATE ---
+        const state = {
+            pHP: 80, pMaxHP: 80, pEnergy: 3, pMaxEnergy: 3, pBlock: 0,
+            eHP: 50, eMaxHP: 50, eBlock: 0,
+            eIntent: { type: 'attack', value: 6 },
+            pStatus: { strength: 0, dexterity: 0 },
+            eStatus: {},
+            pRelics: ["Burning Blood"],
+            deck: ["Strike", "Strike", "Strike", "Strike", "Strike", "Defend", "Defend", "Defend", "Defend", "Bash"],
+            hand: [], discard: [],
+            turnCount: 1,
+            mapNode: 0,
+            gold: 99
+        };
+
+        function flashEntity(id) {
+            const el = document.getElementById(id);
+            el.classList.remove('hit-flash');
+            void el.offsetWidth; // trigger reflow
+            el.classList.add('hit-flash');
+            
+            // Screenshake-like effect
+            const originalLeft = id === 'player' ? 80 : null;
+            const originalRight = id === 'enemy' ? 80 : null;
+            
+            if (id === 'player') {
+                el.style.left = '70px';
+                setTimeout(() => el.style.left = '90px', 50);
+                setTimeout(() => el.style.left = '80px', 100);
+            } else {
+                el.style.right = '70px';
+                setTimeout(() => el.style.right = '90px', 50);
+                setTimeout(() => el.style.right = '80px', 100);
+            }
+        }
+
+        // --- CORE ENGINE ---
+        function msg(text) {
+            const log = document.getElementById('combat-log');
+            const entry = document.createElement('div');
+            entry.innerHTML = `<span style="color: #666;">[Turn ${state.turnCount}]</span> ${text}`;
+            log.prepend(entry);
+        }
+
+        function calculateDamage(base, sourceStatus, targetStatus, strengthMult = 1) {
+            let val = base + ((sourceStatus.strength || 0) * strengthMult);
+            let mult = 1.0;
+            if (targetStatus && (targetStatus.vulnerable || 0) > 0) {
+                if (targetStatus === state.pStatus && state.pRelics.includes("Odd Mushroom")) {
+                    mult *= 1.25;
+                } else {
+                    const hasPhrog = state.pRelics.includes("Paper Phrog") && sourceStatus === state.pStatus;
+                    mult *= hasPhrog ? 1.75 : 1.5;
+                }
+            }
+            if (sourceStatus && (sourceStatus.weak || 0) > 0) {
+                // Enemy weakness or player weakness reduces damage by 25%
+                mult *= 0.75;
+            }
+            let finalDmg = Math.max(0, Math.floor(val * mult));
+            
+            // Check for passive block effects like Curl Up when player attacks
+            if (sourceStatus === state.pStatus && targetStatus === state.eStatus && state.eStatus.curl_up > 0) {
+                // This logic is already handled in playCard but good to be aware of
+            }
+            
+            return finalDmg;
+        }
+
+        function calculateBlock(base, sourceStatus) {
+            let val = base + (sourceStatus.dexterity || 0);
+            if (sourceStatus && (sourceStatus.frail || 0) > 0) val = Math.floor(val * 0.75);
+            return Math.max(0, val);
+        }
+
+        function calculateEnemyActionValue(intent) {
+            if (!intent) return 0;
+            if (intent.type === 'attack' || intent.type === 'attack_debuff' || intent.type === 'attack_buff' || intent.type === 'attack_block') {
+                return calculateDamage(intent.value, state.eStatus, state.pStatus);
+            }
+            if (intent.block) return intent.block;
+            if (intent.type === 'block') return intent.value;
+            return 0;
+        }
+
+        function updateUI() {
+            document.getElementById('p-hp-fill').style.width = (state.pHP / state.pMaxHP * 100) + '%';
+            document.getElementById('e-hp-fill').style.width = (state.eHP / state.eMaxHP * 100) + '%';
+            document.getElementById('p-hp-text').innerText = `${state.pHP} / ${state.pMaxHP}`;
+            document.getElementById('e-hp-text').innerText = `${state.eHP} / ${state.eMaxHP}`;
+
+            const pBlockVisible = state.pBlock > 0;
+            document.getElementById('player-block-ui').style.visibility = pBlockVisible ? 'visible' : 'hidden';
+            document.getElementById('p-block-val').innerText = state.pBlock;
+            document.getElementById('p-block-fill').style.width = pBlockVisible ? (state.pBlock / state.pMaxHP * 100) + '%' : '0%';
+
+            const eBlockVisible = state.eBlock > 0;
+            document.getElementById('enemy-block-ui').style.visibility = eBlockVisible ? 'visible' : 'hidden';
+            document.getElementById('e-block-val').innerText = state.eBlock;
+            document.getElementById('e-block-fill').style.width = eBlockVisible ? (state.eBlock / state.eMaxHP * 100) + '%' : '0%';
+
+            document.getElementById('energy-display').innerText = `${state.pEnergy} / ${state.pMaxEnergy}`;
+            document.getElementById('draw-count').innerText = state.deck.length;
+            document.getElementById('discard-count').innerText = state.discard.length;
+            document.getElementById('gold-display').innerText = state.gold;
+
+            let intentIcon = "❓";
+            let intentValStr = "";
+            let multiStr = "";
+            const intent = state.eIntent;
+
+            if (intent) {
+                if (intent.type === 'attack') {
+                    const d = calculateEnemyActionValue(intent);
+                    const hits = intent.hits || 1;
+                    if (d * hits >= 20) intentIcon = "⚔️"; 
+                    else if (d * hits >= 10) intentIcon = "🗡️"; 
+                    else intentIcon = "🔪"; 
+                    intentValStr = `${d}`;
+                    if (hits > 1) multiStr = `x${hits}`;
+                } else if (intent.type === 'attack_debuff') {
+                    const d = calculateEnemyActionValue(intent);
+                    intentIcon = "⚔️🧪";
+                    intentValStr = `${d}`;
+                    if (intent.hits > 1) multiStr = `x${intent.hits}`;
+                } else if (intent.type === 'block') {
+                    intentIcon = "🛡️";
+                    intentValStr = `${intent.block || intent.value}`;
+                } else if (intent.type === 'debuff') {
+                    intentIcon = "🧪";
+                } else if (intent.type === 'buff') {
+                    intentIcon = "💪";
+                } else if (intent.type === 'attack_buff') {
+                    const d = calculateEnemyActionValue(intent);
+                    intentIcon = "⚔️💪";
+                    intentValStr = `${d}`;
+                    if (intent.hits > 1) multiStr = `x${intent.hits}`;
+                } else if (intent.type === 'attack_block') {
+                    const d = calculateEnemyActionValue(intent);
+                    intentIcon = "⚔️🛡️";
+                    intentValStr = `${d}`;
+                    if (intent.hits > 1) multiStr = `x${intent.hits}`;
+                }
+            }
+
+            const intentIconEl = document.getElementById('intent-icon');
+            intentIconEl.innerText = intentIcon;
+            
+            // Apply colors to icons
+            if (intentIcon.includes("⚔️") || intentIcon === "🗡️" || intentIcon === "🔪") {
+                intentIconEl.style.color = "#ff4444";
+            } else if (intentIcon === "🛡️") {
+                intentIconEl.style.color = "#4682b4";
+            } else if (intentIcon.includes("🧪")) {
+                intentIconEl.style.color = "#9932cc";
+            } else if (intentIcon.includes("💪")) {
+                intentIconEl.style.color = "#32cd32";
+            } else {
+                intentIconEl.style.color = "#ffaa00";
+            }
+
+            document.getElementById('intent-value').innerText = intentValStr;
+            document.getElementById('next-intent-val').innerText = intent ? `${intent.name || intent.type} (${intentValStr}${multiStr})` : "None";
+            const multiEl = document.getElementById('intent-multi');
+            if (multiStr) {
+                multiEl.innerText = multiStr;
+                multiEl.style.display = 'block';
+            } else {
+                multiEl.style.display = 'none';
+            }
+
+            const renderStatuses = (statusObj, containerId) => {
+                const container = document.getElementById(containerId);
+                container.innerHTML = '';
+                Object.entries(statusObj).forEach(([key, val]) => {
+                    if (val !== 0) {
+                        const badge = document.createElement('div');
+                        badge.className = `status-badge ${key}`;
+                        badge.innerText = `${key.charAt(0).toUpperCase()}${key.slice(1)}: ${val}`;
+                        container.appendChild(badge);
+                    }
+                });
+            };
+            renderStatuses(state.pStatus, 'p-status-row');
+            renderStatuses(state.eStatus, 'e-status-row');
+
+            const relicContainer = document.getElementById('relic-display');
+            relicContainer.innerHTML = '';
+            state.pRelics.forEach(rName => {
+                const r = RELIC_DATA[rName];
+                const span = document.createElement('span');
+                span.className = 'relic';
+                span.innerText = r.icon;
+                span.title = `${rName}: ${r.desc}`;
+                relicContainer.appendChild(span);
+            });
+
+            const handContainer = document.getElementById('hand');
+            handContainer.innerHTML = '';
+            state.hand.forEach((cardName, idx) => {
+                const card = CARD_DATA[cardName];
+                const cardDiv = document.createElement('div');
+                cardDiv.className = 'card';
+                cardDiv.innerHTML = `
+                    <div class="card-cost">${card.cost}</div>
+                    <div style="font-weight: bold; margin-bottom: 2px;">${cardName}</div>
+                    <div class="card-type">${card.type}</div>
+                    <div style="flex-grow: 1; display: flex; align-items: center; font-size: 0.9em;">${card.desc}</div>
+                `;
+                cardDiv.onclick = () => playCard(idx);
+                handContainer.appendChild(cardDiv);
+            });
+        }
+
+        function drawCards(count) {
+            if (state.pStatus.no_more_draw_this_turn) return;
+            for (let i = 0; i < count; i++) {
+                if (state.deck.length === 0) {
+                    if (state.discard.length === 0) return;
+                    state.deck = [...state.discard];
+                    state.discard = [];
+                    state.deck.sort(() => Math.random() - 0.5);
+                    msg("<span style='color: #88f;'>Deck reshuffled.</span>");
+                }
+                const cardName = state.deck.pop();
+                state.hand.push(cardName);
+
+                const card = CARD_DATA[cardName];
+                if (card.energy_on_draw) {
+                    state.pEnergy = Math.max(0, state.pEnergy + card.energy_on_draw);
+                    msg(`${cardName}: Gained ${card.energy_on_draw} Energy.`);
+                }
+                if (state.pStatus.draw_on_status && (card.type === 'Status' || card.type === 'Curse')) {
+                    msg(`Evolve: Drawing ${state.pStatus.draw_on_status} cards.`);
+                    drawCards(state.pStatus.draw_on_status);
+                }
+                
+                if (state.pStatus.status_damage && (card.type === 'Status' || card.type === 'Curse')) {
+                    let d = calculateDamage(state.pStatus.status_damage, state.pStatus, state.eStatus);
+                    if (state.eBlock >= d) {
+                        state.eBlock -= d;
+                    } else {
+                        state.eHP -= (d - state.eBlock);
+                        state.eBlock = 0;
+                    }
+                    msg(`Fire Breathing deals ${d} damage!`);
+                    flashEntity('enemy');
+                }
+            }
+        }
+
+        function applyStatus(target, key, amount) {
+            if (amount > 0 && target['artifact'] > 0 && ['vulnerable', 'weak', 'frail'].includes(key)) {
+                target['artifact']--;
+                msg(`${target === state.pStatus ? 'Player' : 'Enemy'} Artifact blocked ${key}!`);
+                return;
+            }
+            if (target === state.pStatus && key === 'weak' && state.pRelics.includes("Ginger")) {
+                msg("Ginger: Weak prevented.");
+                return;
+            }
+            target[key] = (target[key] || 0) + amount;
+            if (key === 'vulnerable' && amount > 0 && target === state.eStatus && state.pRelics.includes("Champion Belt")) {
+                msg("Champion Belt: Applied 1 Weak.");
+                applyStatus(state.eStatus, 'weak', 1);
+            }
+        }
+
+        function exhaustCard(handIdx) {
+            const name = state.hand[handIdx];
+            const card = CARD_DATA[name];
+            state.hand.splice(handIdx, 1);
+            msg(`<i>${name}</i> was Exhausted.`);
+            if (state.pStatus.block_on_exhaust) {
+                state.pBlock += state.pStatus.block_on_exhaust;
+                msg(`Feel No Pain: Gained ${state.pStatus.block_on_exhaust} Block.`);
+            }
+            if (card.energy_on_exhaust) {
+                state.pEnergy += card.energy_on_exhaust;
+                msg(`Sentinel: Gained ${card.energy_on_exhaust} Energy.`);
+            }
+        }
+
+        function playCard(handIdx) {
+            const name = state.hand[handIdx];
+            const card = CARD_DATA[name];
+            if (card.unplayable) {
+                msg(`<span style='color: #f44;'>${name} is unplayable!</span>`);
+                return;
+            }
+            
+            let currentCost = card.cost;
+            let xVal = 0;
+            
+            if (card.x_cost) {
+                xVal = state.pEnergy;
+                currentCost = state.pEnergy;
+            }
+
+            if (state.pEnergy < currentCost) return;
+
+            state.pEnergy -= currentCost;
+            
+            if (card.exhaust) {
+                exhaustCard(handIdx);
+            } else {
+                state.hand.splice(handIdx, 1);
+                if (name !== "Dazed") {
+                    state.discard.push(name);
+                }
+            }
+
+            msg(`Played <b>${name}</b>.`);
+
+            const executeEffects = (c, x) => {
+                if (c.damage || c.damage_from_block || c.damage_all) {
+                    const hits = c.x_cost ? x : (c.hits || 1);
+                    const baseDmg = c.damage_from_block ? state.pBlock : (c.damage || c.damage_all);
+                    const sMult = c.strength_mult || 1;
+                    for (let h = 0; h < hits; h++) {
+                        let d = calculateDamage(baseDmg, state.pStatus, state.eStatus, sMult);
+                        
+                        // Akabeko
+                        if (state.pStatus.akabeko) {
+                            d += 8;
+                            state.pStatus.akabeko = 0;
+                            msg("Akabeko: +8 Damage!");
+                        }
+
+                        if (state.eStatus.curl_up) {
+                            const b = state.eStatus.curl_up;
+                            state.eBlock += b;
+                            state.eStatus.curl_up = 0;
+                            msg(`Curl Up: Enemy gains ${b} Block!`);
+                        }
+
+                        if (state.eBlock >= d) {
+                            state.eBlock -= d;
+                        } else {
+                            const dealt = d - state.eBlock;
+                            state.eHP -= dealt;
+                            state.eBlock = 0;
+                            
+                            // Thorns
+                            if (state.eStatus.thorns) {
+                                state.pHP = Math.max(0, state.pHP - state.eStatus.thorns);
+                                msg(`Thorns: Took ${state.eStatus.thorns} damage!`);
+                                flashEntity('player');
+                            }
+                        }
+                    }
+                    flashEntity('enemy');
+                }
+
+                if (c.block) {
+                    const b = calculateBlock(c.block, state.pStatus);
+                    state.pBlock += b;
+                    flashEntity('player');
+                }
+                if (c.double_block) {
+                    state.pBlock *= 2;
+                    flashEntity('player');
+                }
+
+                if (c.vulnerable) applyStatus(state.eStatus, 'vulnerable', c.vulnerable);
+                if (c.weak) applyStatus(state.eStatus, 'weak', c.weak);
+                if (c.strength) applyStatus(state.pStatus, 'strength', c.strength);
+                if (c.thorns) applyStatus(state.pStatus, 'thorns', c.thorns);
+                if (c.double_strength) applyStatus(state.pStatus, 'strength', state.pStatus.strength || 0);
+                if (c.increase_damage) c.damage = (c.damage || 0) + c.increase_damage;
+                if (c.draw_on_status) applyStatus(state.pStatus, 'draw_on_status', c.draw_on_status);
+                if (c.enemy_strength) applyStatus(state.eStatus, 'strength', c.enemy_strength);
+                if (c.strength_eot) applyStatus(state.pStatus, 'strength_eot', c.strength_eot);
+                if (c.strength_per_turn) applyStatus(state.pStatus, 'strength_per_turn', c.strength_per_turn);
+                if (c.combust) applyStatus(state.pStatus, 'combust', c.combust);
+                if (c.strength_if_attacking && state.eIntent.type.includes('attack')) {
+                    applyStatus(state.pStatus, 'strength', c.strength_if_attacking);
+                    msg(`Spot Weakness: Gained ${c.strength_if_attacking} Strength.`);
+                }
+                if (c.block_on_exhaust) applyStatus(state.pStatus, 'block_on_exhaust', c.block_on_exhaust);
+                if (c.status_damage) applyStatus(state.pStatus, 'status_damage', c.status_damage);
+                if (c.keep_block) applyStatus(state.pStatus, 'keep_block', 1);
+                if (c.metallicize) applyStatus(state.pStatus, 'metallicize', c.metallicize);
+                if (c.artifact) applyStatus(target, 'artifact', c.artifact);
+                
+                if (c.draw) {
+                    if (state.pStatus.no_more_draw_this_turn) {
+                        msg("<span style='color: #f44;'>Battle Trance prevents drawing!</span>");
+                    } else {
+                        drawCards(c.draw);
+                    }
+                }
+                if (c.no_more_draw_this_turn) applyStatus(state.pStatus, 'no_more_draw_this_turn', 1);
+                if (c.strength_loss_eot) applyStatus(state.pStatus, 'strength_loss_eot', c.strength_loss_eot);
+                if (c.energy) state.pEnergy += c.energy;
+                if (c.self_damage) {
+                    state.pHP = Math.max(0, state.pHP - c.self_damage);
+                    flashEntity('player');
+                }
+                if (c.add_to_discard) state.discard.push(c.add_to_discard);
+                if (c.add_to_draw) {
+                    state.deck.push(c.add_to_draw);
+                    state.deck.sort(() => Math.random() - 0.5);
+                }
+
+                if (c.exhaust_random && state.hand.length > 0) {
+                    const ridx = Math.floor(Math.random() * state.hand.length);
+                    exhaustCard(ridx);
+                }
+
+                if (c.play_top_deck && state.deck.length > 0) {
+                    const topCard = state.deck.pop();
+                    state.hand.push(topCard);
+                    const tempIdx = state.hand.length - 1;
+                    const origCost = CARD_DATA[topCard].cost;
+                    const origExhaust = CARD_DATA[topCard].exhaust;
+                    CARD_DATA[topCard].cost = 0;
+                    CARD_DATA[topCard].exhaust = true;
+                    playCard(tempIdx);
+                    CARD_DATA[topCard].cost = origCost;
+                    CARD_DATA[topCard].exhaust = origExhaust;
+                }
+
+                if (c.exhaust_non_attacks) {
+                    for (let i = state.hand.length - 1; i >= 0; i--) {
+                        if (CARD_DATA[state.hand[i]].type !== 'Attack') {
+                            exhaustCard(i);
+                        }
+                    }
+                }
+                
+                if (c.double_tap) state.pStatus.double_tap = (state.pStatus.double_tap || 0) + c.double_tap;
+            };
+
+            const isAttack = card.type === 'Attack';
+            
+            // Check Spot Weakness Glow (simulated)
+            if (name === "Spot Weakness") {
+                if (state.eIntent.type.includes('attack')) {
+                    msg("Spot Weakness: Glowing!");
+                }
+            }
+
+            executeEffects(card, xVal);
+            
+            if (isAttack && state.pStatus.double_tap > 0) {
+                state.pStatus.double_tap--;
+                msg(`Double Tap: Playing <b>${name}</b> again.`);
+                executeEffects(card, xVal);
+            }
+
+            if (state.eHP <= 0) {
+                state.eHP = 0;
+                updateUI();
+                const reward = 10 + Math.floor(Math.random() * 15);
+                state.gold += reward;
+                msg(`<span style='color: #4f4; font-size: 1.2em;'>VICTORY!</span> Gained ${reward} Gold. Healing 6 HP (Burning Blood).`);
+                state.pHP = Math.min(state.pMaxHP, state.pHP + 6);
+                setTimeout(() => {
+                    document.getElementById('view-combat').style.display = 'none';
+                    document.getElementById('view-map').style.display = 'flex';
+                    renderMap();
+                }, 1500);
+            }
+            updateUI();
+        }
+
+        function selectClass(className) {
+            const data = CLASS_DATA[className];
+            state.pMaxHP = data.maxHP;
+            state.pHP = data.maxHP;
+            state.pRelics = [data.relic];
+            state.deck = [...data.deck];
+            state.map = generateMap(15); // Generate the map data
+            state.mapNode = { floor: -1, path: -1 }; // Start before the map
+
+            document.getElementById('view-menu').style.display = 'none';
+            document.getElementById('view-map').style.display = 'flex';
+            renderMap();
+            updateUI();
+        }
+
+        function generateMap(floors) {
+            const map = [];
+            let previousLayerPaths = [0, 1, 2]; // Start with 3 paths
+
+            for (let i = 0; i < floors; i++) {
+                const layer = [];
+                const pathsInLayer = 2 + Math.floor(Math.random() * 3); // 2 to 4 paths
+                
+                for (let j = 0; j < pathsInLayer; j++) {
+                    const nodeType = i === floors - 1 ? 'boss' : (i % 6 === 0 && i > 0 ? 'rest' : 'combat'); // Add rest sites and a boss
+                    const connections = [];
+
+                    // Connect to a random node in the previous layer
+                    if (i > 0) {
+                        connections.push(map[i-1][Math.floor(Math.random() * map[i-1].length)].id);
+                    }
+
+                    layer.push({ id: `f${i}p${j}`, floor: i, path: j, type: nodeType, connections: connections });
+                }
+                map.push(layer);
+            }
+            return map;
+        }
+
+        function generateIntent() {
+            const enemyName = state.eName || "Jaw Worm";
+            const pool = ENEMY_INTENTS[enemyName] || ENEMY_INTENTS["Jaw Worm"];
+            
+            // Handle unique logic (like Cultist ritual on turn 1)
+            if (enemyName === "Cultist" && state.turnCount === 1) {
+                state.eIntent = JSON.parse(JSON.stringify(pool[0]));
+                updateUI();
+                return;
+            }
+
+            const r = Math.random();
+            // First pass: only non-'once' intents if turnCount > 1
+            const filteredPool = pool.filter(intent => !(intent.once && state.turnCount > 1));
+            
+            const totalChance = filteredPool.reduce((sum, i) => sum + i.chance, 0);
+            let normalizedR = Math.random() * totalChance;
+            
+            let cumulative = 0;
+            for (let intent of filteredPool) {
+                cumulative += intent.chance;
+                if (normalizedR <= cumulative) {
+                    state.eIntent = JSON.parse(JSON.stringify(intent));
+                    break;
+                }
+            }
+            updateUI();
+        }
+
+        function renderMap() {
+            const container = document.getElementById('map-nodes-container');
+            container.innerHTML = '';
+            document.getElementById('floor-num').innerText = state.mapNode + 1;
+            for (let i = 0; i < 15; i++) {
+                const node = document.createElement('div');
+                node.className = 'map-node' + (i === 0 ? ' active' : '');
+                
+                let icon = '⚔️';
+                if (i === 7) icon = '🔥'; // Rest site mid-way
+                if (i === 14) icon = '👹'; // Boss at the end
+                
+                node.innerText = icon;
+                node.onclick = () => { if (i === 0) startCombat(); };
+                container.appendChild(node);
+                if (i < 14) {
+                    const conn = document.createElement('div');
+                    conn.className = 'map-connector';
+                    container.appendChild(conn);
+                }
+            }
+        }
+
+        function startCombat() {
+            state.mapNode++;
+            document.getElementById('floor-val').innerText = state.mapNode;
+            const enemy = ENEMY_POOL[Math.floor(Math.random() * ENEMY_POOL.length)];
+            state.eName = enemy.name;
+            state.eHP = enemy.hp + (state.mapNode * 2);
+            state.eMaxHP = state.eHP;
+            state.eBlock = 0;
+            state.eStatus = {};
+            if (enemy.curl_up) state.eStatus.curl_up = enemy.curl_up;
+
+            state.pStatus = { strength: 0, dexterity: 0 };
+            state.turnCount = 1;
+            state.pEnergy = state.pMaxEnergy;
+            if (state.pRelics.includes("Lantern")) state.pEnergy++;
+            state.pBlock = 0;
+
+            if (state.pRelics.includes("Vajra")) applyStatus(state.pStatus, 'strength', 1);
+            if (state.pRelics.includes("Smooth Stone")) applyStatus(state.pStatus, 'dexterity', 1);
+            // Akabeko
+            if (state.pRelics.includes("Akabeko") && state.pStatus.akabeko) {
+                applyStatus(state.pStatus, 'akabeko', 1);
+            }
+            
+            document.getElementById('enemy-sprite').innerText = enemy.sprite;
+            msg(`A wild ${enemy.name} appears!`);
+
+            document.getElementById('view-map').style.display = 'none';
+            document.getElementById('view-combat').style.display = 'flex';
+            
+            state.deck = ["Strike", "Strike", "Strike", "Defend", "Defend", "Bash", "Twin Strike", "Vulnerable Card", "Weak Card", "Pummel"];
+            state.hand = [];
+            state.discard = [];
+            state.deck.sort(() => Math.random() - 0.5);
+            drawCards(5);
+            generateIntent();
+            updateUI();
+        }
+
+        function endTurn() {
+            msg("<span style='color: #aaa;'>--- Enemy Turn ---</span>");
+            const intent = state.eIntent;
+            
+            // End of Turn effects (Burn)
+            state.hand.forEach(cName => {
+                const card = CARD_DATA[cName];
+                if (card.damage_eot) {
+                    state.pHP = Math.max(0, state.pHP - card.damage_eot);
+                    msg(`${cName}: Took ${card.damage_eot} damage.`);
+                    flashEntity('player');
+                }
+            });
+
+            if (intent.type === 'attack' || intent.type === 'attack_debuff' || intent.type === 'attack_buff' || intent.type === 'attack_block') {
+                const hits = intent.hits || 1;
+                let total = 0;
+                for (let h = 0; h < hits; h++) {
+                    let d = calculateEnemyActionValue(intent);
+                    
+                    // Player Thorns
+                    if (state.pStatus.thorns) {
+                        state.eHP = Math.max(0, state.eHP - state.pStatus.thorns);
+                        msg(`Flame Barrier Thorns: Enemy took ${state.pStatus.thorns} damage!`);
+                        flashEntity('enemy');
+                    }
+
+                    total += d;
+                    if (state.pBlock >= d) {
+                        state.pBlock -= d;
+                    } else {
+                        const actualLoss = (d - state.pBlock);
+                        state.pHP -= actualLoss;
+                        state.pBlock = 0;
+                        
+                        // Blood for Blood reduction logic
+                        Object.keys(CARD_DATA).forEach(k => {
+                            if (CARD_DATA[k].cost_reduction_on_damage) {
+                                // This is tricky as we need to track individual card instances if we wanted perfect StS logic, 
+                                // but for this clone we'll just reduce the global cost in CARD_DATA for the session
+                                CARD_DATA[k].cost = Math.max(0, CARD_DATA[k].cost - CARD_DATA[k].cost_reduction_on_damage);
+                            }
+                        });
+                    }
+                    if (intent.vulnerable_on_hit) applyStatus(state.pStatus, 'vulnerable', intent.vulnerable_on_hit);
+                    if (intent.weak_on_hit) applyStatus(state.pStatus, 'weak', intent.weak_on_hit);
+                }
+                msg(`Enemy attacks for ${total}!`);
+                flashEntity('player');
+                if (intent.weak && !intent.weak_on_hit) applyStatus(state.pStatus, 'weak', intent.weak);
+                if (intent.vulnerable && !intent.vulnerable_on_hit) applyStatus(state.pStatus, 'vulnerable', intent.vulnerable);
+            }
+            
+            if (intent.block || (intent.type === 'attack_block' && intent.block)) {
+                const b = intent.block || intent.value; // Fallback
+                state.eBlock += b;
+                msg(`Enemy gains ${b} Block.`);
+                flashEntity('enemy');
+            }
+            if (intent.strength || (intent.type === 'attack_buff' && intent.strength)) {
+                applyStatus(state.eStatus, 'strength', intent.strength);
+                msg(`Enemy gains ${intent.strength} Strength.`);
+            }
+            if (intent.ritual) {
+                applyStatus(state.eStatus, 'ritual', intent.ritual);
+                msg(`Enemy performs Ritual.`);
+            }
+
+            if (intent.type === 'debuff') {
+                if (intent.vulnerable) applyStatus(state.pStatus, 'vulnerable', intent.vulnerable);
+                if (intent.weak) applyStatus(state.pStatus, 'weak', intent.weak);
+                if (intent.slimed) {
+                    state.discard.push("Slimed");
+                    msg("Enemy added Slimed to discard.");
+                }
+                if (intent.burn) {
+                    state.discard.push("Burn");
+                    msg("Enemy added Burn to discard.");
+                }
+                if (intent.dazed) {
+                    for (let i=0; i<intent.dazed; i++) state.discard.push("Dazed");
+                    msg(`Enemy added ${intent.dazed} Dazed to discard.`);
+                }
+            } else if (intent.type === 'buff') {
+                if (intent.strength) {
+                    applyStatus(state.eStatus, 'strength', intent.strength);
+                    msg(`Enemy gains ${intent.strength} Strength.`);
+                }
+                flashEntity('enemy');
+            }
+
+            if (state.pStatus.combust) {
+                state.pHP = Math.max(0, state.pHP - 1);
+                msg(`Combust: Lost 1 HP.`);
+                let d = calculateDamage(state.pStatus.combust, state.pStatus, state.eStatus);
+                if (state.eBlock >= d) {
+                    state.eBlock -= d;
+                } else {
+                    state.eHP -= (d - state.eBlock);
+                    state.eBlock = 0;
+                }
+                msg(`Combust deals ${d} damage.`);
+                flashEntity('enemy');
+                flashEntity('player');
+            }
+
+            if (state.pStatus.strength_eot) {
+                applyStatus(state.pStatus, 'strength', state.pStatus.strength_eot);
+                state.pStatus.strength_eot = 0;
+            }
+
+            for (let i = state.hand.length - 1; i >= 0; i--) {
+                const cName = state.hand[i];
+                if (CARD_DATA[cName].exhaust_eot) {
+                    msg(`<i>${cName}</i> was Exhausted (Ethereal).`);
+                    state.hand.splice(i, 1);
+                    if (state.pStatus.block_on_exhaust) state.pBlock += state.pStatus.block_on_exhaust;
+                }
+            }
+
+            if (state.pStatus.metallicize) {
+                state.pBlock += state.pStatus.metallicize;
+                msg(`Metallicize: Gained ${state.pStatus.metallicize} Block.`);
+                flashEntity('player');
+            }
+
+            // Orichalcum
+            if (state.pRelics.includes("Orichalcum") && state.pBlock === 0) {
+                state.pBlock = 6;
+                msg("Orichalcum: Gained 6 Block.");
+                flashEntity('player');
+            }
+
+            if (state.pStatus.strength_loss_eot) {
+                applyStatus(state.pStatus, 'strength', -state.pStatus.strength_loss_eot);
+                msg(`Flex: Lost ${state.pStatus.strength_loss_eot} Strength.`);
+                state.pStatus.strength_loss_eot = 0;
+            }
+
+            const decay = (obj) => {
+        for (let k in obj) {
+            if (!['strength', 'dexterity', 'block_on_exhaust', 'strength_per_turn', 'combust', 'status_damage', 'keep_block', 'ritual', 'metallicize', 'artifact', 'thorns', 'akabeko', 'strength_loss_eot'].includes(k) && obj[k] > 0) obj[k]--;
+        }
+    };
+            decay(state.pStatus);
+            decay(state.eStatus);
+            
+            // Temporary Thorns (Flame Barrier)
+            state.pStatus.thorns = 0; 
+
+            if (state.eStatus.ritual) {
+                applyStatus(state.eStatus, 'strength', state.eStatus.ritual);
+                msg(`Ritual: Enemy gains ${state.eStatus.ritual} Strength.`);
+            }
+
+            state.turnCount++;
+            state.pEnergy = state.pMaxEnergy;
+            
+            // Start of Turn effects
+            state.pStatus.no_more_draw_this_turn = 0;
+            if (state.pStatus.strength_per_turn) {
+                applyStatus(state.pStatus, 'strength', state.pStatus.strength_per_turn);
+                msg(`Demon Form: Gained ${state.pStatus.strength_per_turn} Strength.`);
+            }
+
+            if (!state.pStatus.keep_block) state.pBlock = 0;
+            state.discard.push(...state.hand);
+            state.hand = [];
+            drawCards(5);
+            generateIntent();
+            updateUI();
+            
+            if (state.pHP <= 0) {
+                state.pHP = 0;
+                updateUI();
+                alert("GAME OVER");
+                location.reload();
+            }
+        }
+
+        if (state.pRelics.includes("Vajra")) applyStatus(state.pStatus, 'strength', 1);
+        if (state.pRelics.includes("Smooth Stone")) applyStatus(state.pStatus, 'dexterity', 1);
+        // Initial setup removed from global scope to wait for menu selection
+    </script>
+</body>
+</html>
