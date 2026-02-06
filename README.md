@@ -40,7 +40,7 @@ The goal is to reach feature parity with the core mechanics of Slay the Spire.
 - [x] **Character Layout:** Move Player character left and up to avoid overlap with hand cards.
 - [x] **Card Template:** Create a consistent HTML/CSS frame for cards (border, title, cost, desc, image container).
 - [x] **Card Hover UX:** Add detailed tooltips and descriptions when hovering cards.
-- [ ] **Gen Art: Characters:** Use `nano-banana-pro` to generate Ironclad/Silent sprites. Style: "Dark fantasy comic book style, thick jagged black outlines, cel-shaded, hard edges, earthy saturated colors, hand-drawn vector aesthetic." (Transparent bg).
+- [x] **Gen Art: Characters:** Use `nano-banana-pro` to generate Ironclad/Silent sprites. Style: "Dark fantasy comic book style, thick jagged black outlines, cel-shaded, hard edges, earthy saturated colors, hand-drawn vector aesthetic." (Transparent bg).
 - [ ] **Gen Art: Backgrounds:** Use `nano-banana-pro` to generate detailed fight backgrounds (Ground, Near, Far layers). Same thick-line comic style.
 - [ ] **Parallax Effect:** Implement parallax scrolling/mouse-movement for the background layers.
 - [ ] **Gen Art: Cards:** Use `nano-banana-pro` to generate unique art for all implemented cards. Style: High contrast, thick lines, dynamic action shots.

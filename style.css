@@ -313,3 +313,4 @@ body { background: #0a0a0a; color: #eee; font-family: 'Segoe UI', Tahoma, Geneva
     display: block;
 }
 
+.entity-sprite img { width: 150px; height: 150px; object-fit: contain; filter: drop-shadow(0 5px 5px rgba(0,0,0,0.5)); }
