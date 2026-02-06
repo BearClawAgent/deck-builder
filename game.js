@@ -85,43 +85,43 @@ function moveTooltip(e) {
 }
 
 const CARD_DB = {
-    "Strike": { type: "Attack", cost: 1, val: 6, desc: "Deal 6 damage.", img: "⚔️" },
-    "Defend": { type: "Skill", cost: 1, block: 5, desc: "Gain 5 Block.", img: "🛡️" },
-    "Bash": { type: "Attack", cost: 2, val: 8, vul: 2, desc: "Deal 8 dmg. Apply 2 Vulnerable.", img: "🔨" },
-    "Neutralize": { type: "Attack", cost: 0, val: 3, weak: 1, desc: "Deal 3 dmg. Apply 1 Weak.", img: "🧪" },
-    "Survivor": { type: "Skill", cost: 1, block: 8, discard: 1, desc: "Gain 8 Block. Discard 1 card.", img: "🌫️" },
-    "Eruption": { type: "Attack", cost: 2, val: 9, wrath: true, desc: "Deal 9 dmg. Enter Wrath.", img: "🔥" },
-    "Vigilance": { type: "Skill", cost: 2, block: 8, calm: true, desc: "Gain 8 Block. Enter Calm.", img: "🧘" },
-    "Cleave": { type: "Attack", cost: 1, val: 8, desc: "Deal 8 damage to ALL enemies (Targeting TBD).", img: "🪓" },
-    "Pommel Strike": { type: "Attack", cost: 1, val: 9, draw: 1, desc: "Deal 9 dmg. Draw 1 card.", img: "🗡️" },
-    "Shrug It Off": { type: "Skill", cost: 1, block: 8, draw: 1, desc: "Gain 8 Block. Draw 1 card.", img: "🤷" },
-    "Deadly Poison": { type: "Skill", cost: 1, poison: 5, desc: "Apply 5 Poison.", img: "☠️" },
-    "Blade Dance": { type: "Skill", cost: 1, shivs: 2, desc: "Add 2 Shivs to hand.", img: "🗡️" },
-    "Shiv": { type: "Attack", cost: 0, val: 4, exhaust: true, desc: "Deal 4 damage. Exhaust.", img: "🔪" },
+    "Strike": { type: "Attack", cost: 1, val: 6, desc: "Deal 6 damage.", img: "assets/cards/strike.svg" },
+    "Defend": { type: "Skill", cost: 1, block: 5, desc: "Gain 5 Block.", img: "assets/cards/defend.svg" },
+    "Bash": { type: "Attack", cost: 2, val: 8, vul: 2, desc: "Deal 8 dmg. Apply 2 Vulnerable.", img: "assets/cards/bash.svg" },
+    "Neutralize": { type: "Attack", cost: 0, val: 3, weak: 1, desc: "Deal 3 dmg. Apply 1 Weak.", img: "assets/cards/neutralize.svg" },
+    "Survivor": { type: "Skill", cost: 1, block: 8, discard: 1, desc: "Gain 8 Block. Discard 1 card.", img: "assets/cards/survivor.svg" },
+    "Eruption": { type: "Attack", cost: 2, val: 9, wrath: true, desc: "Deal 9 dmg. Enter Wrath.", img: "assets/cards/eruption.svg" },
+    "Vigilance": { type: "Skill", cost: 2, block: 8, calm: true, desc: "Gain 8 Block. Enter Calm.", img: "assets/cards/vigilance.svg" },
+    "Cleave": { type: "Attack", cost: 1, val: 8, desc: "Deal 8 damage to ALL enemies (Targeting TBD).", img: "assets/cards/cleave.svg" },
+    "Pommel Strike": { type: "Attack", cost: 1, val: 9, draw: 1, desc: "Deal 9 dmg. Draw 1 card.", img: "assets/cards/pommel-strike.svg" },
+    "Shrug It Off": { type: "Skill", cost: 1, block: 8, draw: 1, desc: "Gain 8 Block. Draw 1 card.", img: "assets/cards/shrug-it-off.svg" },
+    "Deadly Poison": { type: "Skill", cost: 1, poison: 5, desc: "Apply 5 Poison.", img: "assets/cards/deadly-poison.svg" },
+    "Blade Dance": { type: "Skill", cost: 1, shivs: 2, desc: "Add 2 Shivs to hand.", img: "assets/cards/blade-dance.svg" },
+    "Shiv": { type: "Attack", cost: 0, val: 4, exhaust: true, desc: "Deal 4 damage. Exhaust.", img: "assets/cards/shiv.svg" },
 
     // --- IRONCLAD EXPANSION ---
-    "Iron Wave": { type: "Attack", cost: 1, val: 5, block: 5, desc: "Deal 5 damage. Gain 5 Block.", img: "🛡️⚔️" },
-    "Clothesline": { type: "Attack", cost: 2, val: 12, weak: 2, desc: "Deal 12 damage. Apply 2 Weak.", img: "🧺" },
-    "Thunderclap": { type: "Attack", cost: 1, val: 4, vul: 1, desc: "Deal 4 damage. Apply 1 Vulnerable.", img: "⚡" },
-    "Twin Strike": { type: "Attack", cost: 1, val: 10, desc: "Deal 10 damage.", img: "⚔️⚔️" },
-    "Sword Boomerang": { type: "Attack", cost: 1, val: 9, desc: "Deal 9 damage.", img: "🪃" },
-    "Inflame": { type: "Power", cost: 1, strength_gain: 2, desc: "Gain 2 Strength.", img: "💪" },
-    "Spot Weakness": { type: "Skill", cost: 1, strength_gain: 3, desc: "Gain 3 Strength.", img: "🎯" },
-    "Reaper": { type: "Attack", cost: 2, val: 4, heal: 4, desc: "Deal 4 damage. Heal 4 HP.", img: "🧛" },
-    "Flame Barrier": { type: "Skill", cost: 2, block: 12, desc: "Gain 12 Block.", img: "🔥🛡️" },
-    "Uppercut": { type: "Attack", cost: 2, val: 13, weak: 1, vul: 1, desc: "Deal 13 dmg. Apply 1 Weak, 1 Vuln.", img: "🥊" },
+    "Iron Wave": { type: "Attack", cost: 1, val: 5, block: 5, desc: "Deal 5 damage. Gain 5 Block.", img: "assets/cards/iron-wave.svg" },
+    "Clothesline": { type: "Attack", cost: 2, val: 12, weak: 2, desc: "Deal 12 damage. Apply 2 Weak.", img: "assets/cards/clothesline.svg" },
+    "Thunderclap": { type: "Attack", cost: 1, val: 4, vul: 1, desc: "Deal 4 damage. Apply 1 Vulnerable.", img: "assets/cards/thunderclap.svg" },
+    "Twin Strike": { type: "Attack", cost: 1, val: 10, desc: "Deal 10 damage.", img: "assets/cards/twin-strike.svg" },
+    "Sword Boomerang": { type: "Attack", cost: 1, val: 9, desc: "Deal 9 damage.", img: "assets/cards/sword-boomerang.svg" },
+    "Inflame": { type: "Power", cost: 1, strength_gain: 2, desc: "Gain 2 Strength.", img: "assets/cards/inflame.svg" },
+    "Spot Weakness": { type: "Skill", cost: 1, strength_gain: 3, desc: "Gain 3 Strength.", img: "assets/cards/spot-weakness.svg" },
+    "Reaper": { type: "Attack", cost: 2, val: 4, heal: 4, desc: "Deal 4 damage. Heal 4 HP.", img: "assets/cards/reaper.svg" },
+    "Flame Barrier": { type: "Skill", cost: 2, block: 12, desc: "Gain 12 Block.", img: "assets/cards/flame-barrier.svg" },
+    "Uppercut": { type: "Attack", cost: 2, val: 13, weak: 1, vul: 1, desc: "Deal 13 dmg. Apply 1 Weak, 1 Vuln.", img: "assets/cards/uppercut.svg" },
 
     // --- SILENT EXPANSION ---
-    "Dagger Spray": { type: "Attack", cost: 1, val: 4, desc: "Deal 4 damage.", img: "🗡️💨" },
-    "Dagger Throw": { type: "Attack", cost: 1, val: 9, draw: 1, desc: "Deal 9 damage. Draw 1 card.", img: "🗡️🎯" },
-    "Poisoned Stab": { type: "Attack", cost: 1, val: 6, poison: 3, desc: "Deal 6 dmg. Apply 3 Poison.", img: "🗡️☠️" },
-    "Sucker Punch": { type: "Attack", cost: 1, val: 7, weak: 1, desc: "Deal 7 damage. Apply 1 Weak.", img: "👊" },
-    "Backflip": { type: "Skill", cost: 1, block: 5, draw: 2, desc: "Gain 5 Block. Draw 2 cards.", img: "🤸" },
-    "Footwork": { type: "Power", cost: 1, dexterity_gain: 2, desc: "Gain 2 Dexterity.", img: "👟" },
-    "Leg Sweep": { type: "Skill", cost: 2, block: 11, weak: 2, desc: "Gain 11 Block. Apply 2 Weak.", img: "🦵" },
-    "Crippling Cloud": { type: "Skill", cost: 2, poison: 3, weak: 2, desc: "Apply 3 Poison and 2 Weak.", img: "☁️" },
-    "Bouncing Flask": { type: "Skill", cost: 2, poison: 9, desc: "Apply 9 Poison.", img: "🏺" },
-    "Adrenaline": { type: "Skill", cost: 0, energy_gain: 1, draw: 2, exhaust: true, desc: "Gain 1 Energy. Draw 2. Exhaust.", img: "💉" }
+    "Dagger Spray": { type: "Attack", cost: 1, val: 4, desc: "Deal 4 damage.", img: "assets/cards/dagger-spray.svg" },
+    "Dagger Throw": { type: "Attack", cost: 1, val: 9, draw: 1, desc: "Deal 9 damage. Draw 1 card.", img: "assets/cards/dagger-throw.svg" },
+    "Poisoned Stab": { type: "Attack", cost: 1, val: 6, poison: 3, desc: "Deal 6 dmg. Apply 3 Poison.", img: "assets/cards/poisoned-stab.svg" },
+    "Sucker Punch": { type: "Attack", cost: 1, val: 7, weak: 1, desc: "Deal 7 damage. Apply 1 Weak.", img: "assets/cards/sucker-punch.svg" },
+    "Backflip": { type: "Skill", cost: 1, block: 5, draw: 2, desc: "Gain 5 Block. Draw 2 cards.", img: "assets/cards/backflip.svg" },
+    "Footwork": { type: "Power", cost: 1, dexterity_gain: 2, desc: "Gain 2 Dexterity.", img: "assets/cards/footwork.svg" },
+    "Leg Sweep": { type: "Skill", cost: 2, block: 11, weak: 2, desc: "Gain 11 Block. Apply 2 Weak.", img: "assets/cards/leg-sweep.svg" },
+    "Crippling Cloud": { type: "Skill", cost: 2, poison: 3, weak: 2, desc: "Apply 3 Poison and 2 Weak.", img: "assets/cards/crippling-cloud.svg" },
+    "Bouncing Flask": { type: "Skill", cost: 2, poison: 9, desc: "Apply 9 Poison.", img: "assets/cards/bouncing-flask.svg" },
+    "Adrenaline": { type: "Skill", cost: 0, energy_gain: 1, draw: 2, exhaust: true, desc: "Gain 1 Energy. Draw 2. Exhaust.", img: "assets/cards/adrenaline.svg" }
 };
 
 const RELIC_DB = [
@@ -1045,7 +1045,7 @@ function winCombat() {
         el.className = `card reward-card ${typeClass}`;
         el.innerHTML = `
             <div class="card-cost">${cardData.cost}</div>
-            <div class="card-image">${cardData.img}</div>
+            <div class="card-image"><img src="${cardData.img}" alt="${cName}" /></div>
             <div class="card-name">${cName}</div>
             <div class="card-desc">${cardData.desc}</div>
             <div class="card-type-text">${cardData.type}</div>
@@ -1139,7 +1139,7 @@ function renderShop() {
         wrapper.innerHTML = `
             <div class="card ${typeClass}" style="pointer-events: none;">
                 <div class="card-cost">${cardData.cost}</div>
-                <div class="card-image">${cardData.img}</div>
+                <div class="card-image"><img src="${cardData.img}" alt="${item.name}" /></div>
                 <div class="card-name">${item.name}</div>
                 <div class="card-desc">${cardData.desc}</div>
                 <div class="card-type-text">${cardData.type}</div>
@@ -1441,7 +1441,7 @@ function updateCombatUI() {
         el.className = `card ${STATE.player.energy >= cData.cost ? 'playable' : 'unplayable'} ${typeClass}`;
         el.innerHTML = `
             <div class="card-cost">${cData.cost}</div>
-            <div class="card-image">${cData.img}</div>
+            <div class="card-image"><img src="${cData.img}" alt="${cName}" /></div>
             <div class="card-name">${cName}</div>
             <div class="card-desc">${cData.desc}</div>
             <div class="card-type-text">${cData.type}</div>
