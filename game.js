@@ -432,8 +432,9 @@ function winCombat() {
     const keys = Object.keys(CARD_DB);
     for (let i=0; i<3; i++) options.push(keys[Math.floor(Math.random() * keys.length)]);
     
-    const container = document.getElementById('reward-choices');
-    container.innerHTML = '';
+    // const container already defined above
+    // container.innerHTML = ''; // Actually we want to clear it? No, we appended the relic message.
+    // If we clear it here, we lose the relic message.
     
     options.forEach(cName => {
         const cardData = CARD_DB[cName];
