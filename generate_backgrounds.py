@@ -11,15 +11,15 @@ import subprocess
 backgrounds = {
     "bg-far": {
         "filename": "assets/bg-far.png",
-        "prompt": "Dark fantasy comic book style, thick jagged black outlines, cel-shaded, hard edges, earthy saturated colors, hand-drawn vector aesthetic. Distant fantasy landscape, mountains in background, dark stormy sky, castle ruins on horizon, transparent background, high contrast, fantasy environment."
+        "prompt": "Dark fantasy comic book style, thick jagged black outlines, cel-shaded, hard edges, earthy saturated colors, hand-drawn vector aesthetic. Distant fantasy landscape, mountains in background, dark stormy sky, castle ruins on horizon, COMPLETELY TRANSPARENT BACKGROUND, no white areas, no checkerboard, only the landscape elements visible, alpha channel transparency, high contrast, fantasy environment."
     },
     "bg-near": {
         "filename": "assets/bg-near.png", 
-        "prompt": "Dark fantasy comic book style, thick jagged black outlines, cel-shaded, hard edges, earthy saturated colors, hand-drawn vector aesthetic. Mid-ground fantasy forest, twisted trees, rocky terrain, misty atmosphere, some vegetation, transparent background, high contrast, fantasy environment."
+        "prompt": "Dark fantasy comic book style, thick jagged black outlines, cel-shaded, hard edges, earthy saturated colors, hand-drawn vector aesthetic. Mid-ground fantasy forest, twisted trees, rocky terrain, misty atmosphere, some vegetation, COMPLETELY TRANSPARENT BACKGROUND, no white areas, no checkerboard, only the forest elements visible, alpha channel transparency, high contrast, fantasy environment."
     },
     "bg-ground": {
         "filename": "assets/bg-ground.png",
-        "prompt": "Dark fantasy comic book style, thick jagged black outlines, cel-shaded, hard edges, earthy saturated colors, hand-drawn vector aesthetic. Ground level terrain, stone floor, dirt path, scattered rocks, battle arena ground, transparent background, high contrast, fantasy environment."
+        "prompt": "Dark fantasy comic book style, thick jagged black outlines, cel-shaded, hard edges, earthy saturated colors, hand-drawn vector aesthetic. Ground level terrain, stone floor, dirt path, scattered rocks, battle arena ground, COMPLETELY TRANSPARENT BACKGROUND, no white areas, no checkerboard, only the ground elements visible, alpha channel transparency, high contrast, fantasy environment."
     }
 }
 

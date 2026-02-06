@@ -38,11 +38,11 @@ The goal is to reach feature parity with the core mechanics of Slay the Spire.
 ### Phase 2: Art & UX (Current)
 - [x] **Full Screen UI:** Update CSS to make the play area fill the entire browser window (100vw/100vh).
 - [x] **Character Layout:** Move Player character left and up to avoid overlap with hand cards.
-- [ ] **Card Template:** Create a consistent HTML/CSS frame for cards with detailed image for the template border, like a MTG card (border, title, cost, desc, image container).
-- [ ] **Card Hover UX:** Add detailed tooltips and descriptions when hovering cards.
-- [ ] **Gen Art: Characters:** Use `nano-banana-pro` to generate Ironclad/Silent sprites. Style: "Dark fantasy comic book style, thick jagged black outlines, cel-shaded, hard edges, earthy saturated colors, hand-drawn vector aesthetic." (Transparent bg).
-- [ ] **Gen Art: Backgrounds:** Use `nano-banana-pro` to generate detailed fight backgrounds (Ground, Near, Far layers). Same thick-line comic style.
-- [ ] **Parallax Effect:** Implement parallax scrolling/mouse-movement for the background layers in a fight scene. The characters are standing on the ground, and 2 layers of background behind them, close and far. The close layer should move more than the far layer when the mouse moves.
+- [x] **Card Template:** Create a consistent HTML/CSS frame for cards with detailed image for the template border, like a MTG card (border, title, cost, desc, image container).
+- [x] **Card Hover UX:** Add detailed tooltips and descriptions when hovering cards.
+- [x] **Gen Art: Characters:** Use `nano-banana-pro` to generate Ironclad/Silent sprites. Style: "Dark fantasy comic book style, thick jagged black outlines, cel-shaded, hard edges, earthy saturated colors, hand-drawn vector aesthetic." (Transparent bg).
+- [x] **Gen Art: Backgrounds:** Use `nano-banana-pro` to generate detailed fight backgrounds (Ground, Near, Far layers). Same thick-line comic style.
+- [x] **Parallax Effect:** Implement parallax scrolling/mouse-movement for the background layers in a fight scene. The characters are standing on the ground, and 2 layers of background behind them, close and far. The close layer should move more than the far layer when the mouse moves.
 - [x] **Gen Art: Cards:** Use `nano-banana-pro` to generate unique art for all implemented cards. Style: High contrast, thick lines, dynamic action shots.
 
 ## How to Play
