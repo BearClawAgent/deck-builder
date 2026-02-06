@@ -9,10 +9,13 @@
 <body>
 
     <div id="game-board">
+        <!-- Global Tooltip -->
+        <div id="tooltip-container"></div>
+
         <!-- Title Screen -->
         <div id="view-title" class="view active">
             <h1>CLAW SPIRE</h1>
-            <button class="btn-start" onclick="startGame()">Start Game</button>
+            <button id="btn-start-game" class="btn-start">Start Game</button>
         </div>
 
         <!-- Class Selection -->
@@ -35,6 +38,9 @@
         <div id="view-combat" class="view">
             <!-- Top Bar -->
             <div class="top-bar">
+                <div id="potions-container" class="potions-bar">
+                    <!-- Potions injected here -->
+                </div>
                 <div style="color: #aaa;">Draw Pile: <span id="draw-pile-count">0</span></div>
                 <div style="color: #aaa;">Discard: <span id="discard-pile-count">0</span></div>
             </div>
@@ -94,6 +100,61 @@
                 <div id="reward-choices" class="card-choices">
                     <!-- Cards injected here -->
                 </div>
+            </div>
+        </div>
+
+        <!-- Event Screen -->
+        <div id="view-event" class="view">
+            <div class="event-container" style="text-align: center; color: white; max-width: 600px; margin: 50px auto;">
+                <h2 id="event-title" style="color: #f1c40f; font-size: 2em; margin-bottom: 20px;">Unknown Event</h2>
+                <div id="event-image" style="font-size: 4em; margin-bottom: 20px;">❓</div>
+                <p id="event-desc" style="font-size: 1.2em; line-height: 1.5; margin-bottom: 40px; white-space: pre-wrap;">
+                    You stumble upon something weird.
+                </p>
+                <div id="event-options" style="display: flex; flex-direction: column; gap: 10px;">
+                    <!-- Options injected here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Shop Screen -->
+        <div id="view-shop" class="view">
+            <div class="shop-container">
+                <div class="shop-header">
+                    <h2 style="color: #f1c40f;">The Merchant</h2>
+                    <div class="player-gold-display">💰 <span id="shop-gold-display">0</span></div>
+                    <button class="btn-leave-shop" onclick="nextFloor()">Leave Shop</button>
+                </div>
+                
+                <div class="shop-section">
+                    <h3>Cards</h3>
+                    <div id="shop-cards" class="shop-items-row">
+                        <!-- Cards injected -->
+                    </div>
+                </div>
+
+                <div class="shop-section">
+                    <h3>Relics</h3>
+                    <div id="shop-relics" class="shop-items-row">
+                        <!-- Relics injected -->
+                    </div>
+                </div>
+
+                <div class="shop-section">
+                    <h3>Potions</h3>
+                    <div id="shop-potions" class="shop-items-row">
+                        <!-- Potions injected -->
+                    </div>
+                </div>
+
+                <div class="shop-section">
+                    <h3>Services</h3>
+                    <div id="shop-services" class="shop-items-row">
+                        <!-- Removal/Potions injected -->
+                    </div>
+                </div>
+                
+                <div id="shop-message" class="shop-message">Welcome...</div>
             </div>
         </div>
 

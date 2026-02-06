@@ -21,6 +21,30 @@ A "Slay the Spire" inspired roguelike deck builder running entirely in the brows
   - Draft new cards after every victory.
   - Gain powerful Relics from Elite enemies.
 
+## Development Roadmap (Phase 2: Visual Overhaul)
+
+The goal is to reach feature parity with the core mechanics of Slay the Spire.
+
+### Phase 1: Core Mechanics (Complete)
+- [x] **Fix Game Start:** Ensure "Start Game" button works reliably on all browsers.
+- [x] **Events System:** Implement `?` rooms with random text events and choices (Lose HP for Gold, Transform Card, etc.).
+- [x] **Shop System:** Implement Gold currency, Shop nodes, buying cards/relics/potions, and Card Removal service.
+- [x] **Expanded Card Pool:** Add 10-15 new cards per class (Commons, Uncommons, Rares).
+- [x] **Potions:** Implement potion slots and consumables (Fire Potion, Block Potion, etc.).
+- [x] **More Relics:** Add 10+ new relics with unique passive effects.
+- [x] **Boss Mechanics:** distinct AI for the Boss (phases or special moves).
+- [x] **Visual Polish:** Card play animations, damage numbers popping off targets, death animations.
+
+### Phase 2: Art & UX (Current)
+- [x] **Full Screen UI:** Update CSS to make the play area fill the entire browser window (100vw/100vh).
+- [x] **Character Layout:** Move Player character left and up to avoid overlap with hand cards.
+- [x] **Card Template:** Create a consistent HTML/CSS frame for cards (border, title, cost, desc, image container).
+- [x] **Card Hover UX:** Add detailed tooltips and descriptions when hovering cards.
+- [ ] **Gen Art: Characters:** Use `nano-banana-pro` to generate Ironclad/Silent sprites. Style: "Dark fantasy comic book style, thick jagged black outlines, cel-shaded, hard edges, earthy saturated colors, hand-drawn vector aesthetic." (Transparent bg).
+- [ ] **Gen Art: Backgrounds:** Use `nano-banana-pro` to generate detailed fight backgrounds (Ground, Near, Far layers). Same thick-line comic style.
+- [ ] **Parallax Effect:** Implement parallax scrolling/mouse-movement for the background layers.
+- [ ] **Gen Art: Cards:** Use `nano-banana-pro` to generate unique art for all implemented cards. Style: High contrast, thick lines, dynamic action shots.
+
 ## How to Play
 
 1. Open `index.html` in your browser.
