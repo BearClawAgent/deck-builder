@@ -11,11 +11,11 @@ import subprocess
 characters = {
     "ironclad": {
         "filename": "assets/characters/ironclad.png",
-        "prompt": "Dark fantasy comic book style, thick jagged black outlines, cel-shaded, hard edges, earthy saturated colors, hand-drawn vector aesthetic. A muscular male warrior with glowing red armor plates, horned helmet, wielding a large sword, dynamic action pose, transparent background, high contrast, fantasy character design."
+        "prompt": "Dark fantasy comic book style, thick jagged black outlines, cel-shaded, hard edges, earthy saturated colors, hand-drawn vector aesthetic. A muscular male warrior with glowing red armor plates, horned helmet, wielding a large sword, dynamic action pose, COMPLETELY TRANSPARENT BACKGROUND, no white areas, no checkerboard, only the character visible, alpha channel transparency, high contrast, fantasy character design."
     },
     "silent": {
         "filename": "assets/characters/silent.png", 
-        "prompt": "Dark fantasy comic book style, thick jagged black outlines, cel-shaded, hard edges, earthy saturated colors, hand-drawn vector aesthetic. A female rogue/ninja with daggers, wearing dark hooded cloak, agile combat stance, throwing knives ready, transparent background, high contrast, fantasy character design."
+        "prompt": "Dark fantasy comic book style, thick jagged black outlines, cel-shaded, hard edges, earthy saturated colors, hand-drawn vector aesthetic. A female rogue/ninja with daggers, wearing dark hooded cloak, agile combat stance, throwing knives ready, COMPLETELY TRANSPARENT BACKGROUND, no white areas, no checkerboard, only the character visible, alpha channel transparency, high contrast, fantasy character design."
     }
 }
 
